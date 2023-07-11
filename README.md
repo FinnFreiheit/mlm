@@ -10,7 +10,11 @@
 
 3.) Restart the run-time
 
-4.) Run Python Script with the selected parameters
+4.) Login to wandb with your Key 
+
+`!wandb login KEY`
+
+5.) Run Python Script with the selected parameters
 
 `!python /kaggle/working/mlm/mlm.py BATCH_SIZE NUMOFEPOCH WEIGHTDECAY LEARNINGRATE`
 
