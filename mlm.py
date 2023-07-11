@@ -83,6 +83,9 @@ if __name__ == '__main__':
     model = AutoModelForMaskedLM.from_config(config)
     if DEBUG: print(ps, "Model:", model)
 
+    for layer in model.roberta.encoder.layer:
+        layer.output.dropout.p = 0.15
+
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     # device = torch.device("mps")
     model.to(device)
