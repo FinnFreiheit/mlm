@@ -39,7 +39,7 @@ def loadData():
     dataset = load_dataset("ag_news")
     dataset = dataset.shuffle(SEED)
 
-    if DEBUG: dataset["train"] = dataset["train"].select(range(4000))
+    #if DEBUG: dataset["train"] = dataset["train"].select(range(4000))
 
     ds = dataset["train"].train_test_split(test_size=0.1)
     dataset["train"] = ds["train"]
