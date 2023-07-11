@@ -3,6 +3,13 @@ from datasets import load_dataset
 from transformers import TrainingArguments, Trainer, DataCollatorForLanguageModeling
 from transformers import AutoTokenizer, AutoModelForMaskedLM, AutoConfig
 from typing import Dict, Any
+import sys
+
+
+BATCH_SIZE: int = int(sys.argv[0])
+NUMOFEPOCH: int = int(sys.argv[1])
+WEIGHTDECAY: int  = int(sys.argv[2])
+LEARNINGRATE: int = int(sys.argv[3])
 
 SEED = 42
 tokenizer = AutoTokenizer.from_pretrained("distilroberta-base")
@@ -11,6 +18,13 @@ MAX_SEQ_LENGTH = 256
 
 DEBUG = True
 ps = "\n==========================================================\n"
+
+def printArgs():
+    print("Training Arguments: \n")
+    print("Batch size: ", BATCH_SIZE, "typ: ", type(BATCH_SIZE))
+    print("Num of Epoch: ", NUMOFEPOCH, "typ: ", type(NUMOFEPOCH))
+    print("Weight Decay: ", WEIGHTDECAY, "typ: ", type(WEIGHTDECAY))
+    print("Lerning Rate: ", LEARNINGRATE, "typ: ", type(LEARNINGRATE))
 
 def loadData():
     """ Load train and test splits from ag_news. Randomly selected 10% of the training set as validation."""
@@ -35,6 +49,8 @@ def preprocess_function(sample: Dict[str, Any], seq_len):
 
 
 if __name__ == '__main__':
+
+    printArgs()
 
     """ Set up Data """
 
@@ -75,14 +91,14 @@ if __name__ == '__main__':
 
     training_args = TrainingArguments(
         output_dir="mlm_model",
-        per_device_train_batch_size=32,
-        per_device_eval_batch_size=32,
+        per_device_train_batch_size=BATCH_SIZE,
+        per_device_eval_batch_size=BATCH_SIZE,
         evaluation_strategy="epoch",
         save_strategy="epoch",
-        learning_rate=2e-5,
-        num_train_epochs=3,
+        learning_rate=LEARNINGRATE,
+        num_train_epochs=NUMOFEPOCH,
         load_best_model_at_end=True,
-        weight_decay=0.01,
+        weight_decay=WEIGHTDECAY,
         # use_mps_device=True,
     )
 
