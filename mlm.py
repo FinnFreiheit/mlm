@@ -4,6 +4,7 @@ from transformers import TrainingArguments, Trainer, DataCollatorForLanguageMode
 from transformers import AutoTokenizer, AutoModelForMaskedLM, AutoConfig
 from typing import Dict, Any
 import sys
+import wandb
 
 """
 BATCH_SIZE = 32
@@ -58,6 +59,12 @@ if __name__ == '__main__':
 
     printArgs()
 
+    # start a new wandb run to track this script
+    wandb.init(
+        # set the wandb project where this run will be logged
+        project="mlm-first-test",
+    )
+
     """ Set up Data """
 
     dataset = loadData()
@@ -99,6 +106,7 @@ if __name__ == '__main__':
         num_train_epochs=NUMOFEPOCH,
         load_best_model_at_end=True,
         weight_decay=WEIGHTDECAY,
+        report_to="wandb",
         # use_mps_device=True,
     )
 
@@ -111,6 +119,7 @@ if __name__ == '__main__':
     )
 
     trainer.train()
+    wandb.finish()
 
     # Inference
     text = "E-mail scam targets police chief Wiltshire Police warns about <mask> after its fraud squad chief was targeted."
