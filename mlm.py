@@ -5,10 +5,10 @@ from transformers import AutoTokenizer, AutoModelForMaskedLM, AutoConfig
 from typing import Dict, Any
 import sys
 
-BATCH_SIZE: int = int(sys.argv[0])
-NUMOFEPOCH: int = int(sys.argv[1])
-WEIGHTDECAY: int = int(sys.argv[2])
-LEARNINGRATE: int = int(sys.argv[3])
+BATCH_SIZE: float = float(sys.argv[0])
+NUMOFEPOCH: float = float(sys.argv[1])
+WEIGHTDECAY: float = float(sys.argv[2])
+LEARNINGRATE: float = float(sys.argv[3])
 
 SEED = 42
 tokenizer = AutoTokenizer.from_pretrained("distilroberta-base")
