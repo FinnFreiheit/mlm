@@ -5,10 +5,9 @@ from transformers import AutoTokenizer, AutoModelForMaskedLM, AutoConfig
 from typing import Dict, Any
 import sys
 
-
 BATCH_SIZE: int = int(sys.argv[0])
 NUMOFEPOCH: int = int(sys.argv[1])
-WEIGHTDECAY: int  = int(sys.argv[2])
+WEIGHTDECAY: int = int(sys.argv[2])
 LEARNINGRATE: int = int(sys.argv[3])
 
 SEED = 42
@@ -19,12 +18,14 @@ MAX_SEQ_LENGTH = 256
 DEBUG = True
 ps = "\n==========================================================\n"
 
+
 def printArgs():
     print("Training Arguments: \n")
     print("Batch size: ", BATCH_SIZE, "typ: ", type(BATCH_SIZE))
     print("Num of Epoch: ", NUMOFEPOCH, "typ: ", type(NUMOFEPOCH))
     print("Weight Decay: ", WEIGHTDECAY, "typ: ", type(WEIGHTDECAY))
     print("Lerning Rate: ", LEARNINGRATE, "typ: ", type(LEARNINGRATE))
+
 
 def loadData():
     """ Load train and test splits from ag_news. Randomly selected 10% of the training set as validation."""
@@ -41,11 +42,10 @@ def loadData():
 
     return dataset
 
+
 def preprocess_function(sample: Dict[str, Any], seq_len):
     """ text pre-processing."""
     return tokenizer(sample["text"], padding="max_length", truncation=True, max_length=seq_len)
-
-
 
 
 if __name__ == '__main__':
@@ -60,25 +60,16 @@ if __name__ == '__main__':
     )
     if DEBUG: print(ps, "encoded Dataset:", encoded_ds)
 
-    # ToDo Do you need to replace the padding token pad with the end of the sequence eos token? Why or why not?
     tokenizer.pad_token = tokenizer.eos_token
 
     data_collator = DataCollatorForLanguageModeling(tokenizer=tokenizer, mlm_probability=MASKING_PROBABILITY)
 
-    if DEBUG: print(ps, "Data Collator:", data_collator)
+    if DEBUG: print(ps, "Init Data Collator")
 
     """ Set up Model """
-
-    dropout_probability = 0.15
-    # model.roberta.encoder.layer[i].output.dropout = ?
-
     # Update the dropout prob-ability of the output layer in each of the 6 encoder layers (from 0.1) to 0.15.
     config = AutoConfig.from_pretrained("distilroberta-base")
     if DEBUG: print(ps, "config", config)
-    # config.attention_probs_dropout_prob = 0.15
-    # ToDo Ganz dünnes Eis, müssen wir mal schauen ob das so stimmt.
-    config.hidden_dropout_prob = 0.15
-    if DEBUG: print(ps, "attention_probs_dropout_prob: ", config.attention_probs_dropout_prob)
 
     model = AutoModelForMaskedLM.from_config(config)
     if DEBUG: print(ps, "Model:", model)
@@ -117,4 +108,3 @@ if __name__ == '__main__':
 
     # Inference
     text = "E-mail scam targets police chief Wiltshire Police warns about <mask> after its fraud squad chief was targeted."
-
