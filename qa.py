@@ -79,14 +79,13 @@ def analyze_split(train_data):
     print("Maximum length:", max(abstract_lengths))
     print("Mean length:", sum(abstract_lengths) / len(abstract_lengths))
 
-
-
 # EDA for train and test splits
 analyze_split(dataset['train'])
 analyze_split(dataset['test'])
 
 # Flattening the hierarchical structure
 def flatten_split(split):
+    count = 0
     abstracts, questions, answers = [], [], []
     for sample in split:
         for i in range(len(sample['qas']['question'])):
@@ -97,15 +96,10 @@ def flatten_split(split):
                 if answer['unanswerable']:
                     answers.append('')
                 elif answer['free_form_answer'] != '':
-                    answer_free_form = answer["free_form_answer"]
-                    if type(answer_free_form) == list:
-                        answers.append(", ".join(answer_free_form))
-                    else:
-                        answers.append(answer['free_form_answer'])
-                else:
-                    answer_extractive_spans = answer["extractive_spans"]
-                    if type(answer_extractive_spans) == list:
-                        answers.append(", ".join(answer_extractive_spans))
+                    answers.append(answer["free_form_answer"])
+                elif answer['extractive_spans'] != '':
+                    if type(answer["extractive_spans"]) == list:
+                        answers.append(", ".join(answer["extractive_spans"]))
                     else:
                         answers.append(answer['extractive_spans'])
             else:
@@ -132,7 +126,7 @@ train_dataset = data_split["train"]
 validation_dataset = data_split["test"]
 
 # Define preprocessing function
-tokenizer = T5Tokenizer.from_pretrained('t5-base')
+tokenizer = T5Tokenizer.from_pretrained('t5-small')
 
 def preprocess(data):
     input_text = ['question: ' + question + ' context: ' + abstract for (question, abstract) in zip(data["question"], data['abstract'])]
@@ -158,14 +152,9 @@ valid_dataset = validation_dataset.map(
     remove_columns=validation_dataset.column_names
 )
 
-test_dataset = test_dataset.map(
-    preprocess,
-    batched=True,
-    remove_columns=test_dataset.column_names
-)
-
 # Load the model
-model = T5ForConditionalGeneration.from_pretrained('google/t5-efficient-tiny')
+# model = T5ForConditionalGeneration.from_pretrained('google/t5-efficient-tiny') 
+model = T5ForConditionalGeneration.from_pretrained('t5-small')
 
 # Set up Seq2SeqTrainingArguments
 training_args = Seq2SeqTrainingArguments(
@@ -192,4 +181,29 @@ trainer = Seq2SeqTrainer(
 # Training
 trainer.train()
 
+# Predict new sample from test set
+from transformers import T5Tokenizer
 
+# Load the T5 tokenizer
+tokenizer = T5Tokenizer.from_pretrained('t5-small')
+
+model.to("cpu")
+
+# Function to generate an answer to a question given the context
+def answer_question(question, context):
+    # Encode the question and context with the T5 tokenizer
+    # T5 expects a specific format of text, which is "question: some question context: some context"
+    encoded_input = tokenizer.encode("question: " + question + " context: " + context, return_tensors='pt')
+
+    # Generate the answer with the model
+    output = model.generate(encoded_input, max_length=512, num_beams=4, early_stopping=True)
+
+    # Decode the output tensor to a string
+    answer = tokenizer.decode(output[0])
+    return answer
+
+id = 893
+print("Question:", test_dataset[id]["question"])
+print("Predicted Answer: ", answer_question(test_dataset[id]["question"], test_dataset[id]["abstract"]))
+print("Context:", test_dataset[id]["abstract"])
+print("Answer:", test_dataset[id]["answer"])
