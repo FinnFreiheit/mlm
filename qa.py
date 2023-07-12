@@ -26,6 +26,16 @@ def printArgs():
 
 printArgs()
 
+wandb.init(
+    project="qasper-project",
+    config={
+    "learning_rate": LEARNINGRATE,
+    "architecture": "Google-T5",
+    "dataset": "QASPER",
+    "epochs": NUMOFEPOCH,
+    }
+)
+
 # Perform EDA
 def analyze_split(train_data):
     num_questions_per_article = []
@@ -182,6 +192,8 @@ trainer = Seq2SeqTrainer(
 
 # Training
 trainer.train()
+
+wandb.finish()
 
 # Predict new sample from test set
 from transformers import T5Tokenizer
