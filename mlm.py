@@ -2,9 +2,11 @@ import torch
 from datasets import load_dataset
 from transformers import TrainingArguments, Trainer, DataCollatorForLanguageModeling
 from transformers import AutoTokenizer, AutoModelForMaskedLM, AutoConfig
+from transformers import pipeline
 from typing import Dict, Any
 import sys
 import wandb
+import math
 
 """
 BATCH_SIZE = 32
@@ -119,7 +121,24 @@ if __name__ == '__main__':
     )
 
     trainer.train()
-    wandb.finish()
+
+    eval_results_validation = trainer.evaluate()
+    print(f"Perplexity validation Split: {math.exp(eval_results_validation['eval_loss']):.2f}")
+
+    eval_results_test = trainer.evaluate(eval_dataset=encoded_ds["test"])
+    print(f"Perplexity test Split: {math.exp(eval_results_test['eval_loss']):.2f}")
+
+    print("\n Inference:")
 
     # Inference
     text = "E-mail scam targets police chief Wiltshire Police warns about <mask> after its fraud squad chief was targeted."
+
+    model.to("cpu")
+
+    mask_filler = pipeline("fill-mask", model=model, tokenizer=tokenizer)
+    for i in mask_filler(text, top_k=3):
+        print(i, "\n")
+
+    wandb.finish()
+
+
