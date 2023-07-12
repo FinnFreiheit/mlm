@@ -10,7 +10,7 @@ import sys
 dataset = load_dataset("allenai/qasper")
 
 # Print the first sample from the train split
-print(dataset['train'][0])
+# print(dataset['train'][0])
 
 BATCH_SIZE = int(sys.argv[1])
 NUMOFEPOCH = int(sys.argv[2])
@@ -169,24 +169,16 @@ model = T5ForConditionalGeneration.from_pretrained('google/t5-efficient-tiny')
 
 # Set up Seq2SeqTrainingArguments
 training_args = Seq2SeqTrainingArguments(
-    output_dir="./results",
+    output_dir="qa_model",
     per_device_train_batch_size=BATCH_SIZE,  
     per_device_eval_batch_size=BATCH_SIZE,
-    gradient_accumulation_steps=16,  # to reach larger effective batch size
-    evaluation_strategy="steps",
-    do_train=True,
-    do_eval=True,
+    evaluation_strategy="epoch",
+    save_strategy="epoch",
     learning_rate=LEARNINGRATE,
     weight_decay=WEIGHTDECAY,
-    save_total_limit=3,
+    load_best_model_at_end=True,
     num_train_epochs=NUMOFEPOCH,  # adjust number of epochs as per requirement
-    predict_with_generate=True,
-    logging_steps=100,
-    eval_steps=100,
-    push_to_hub=False,  
-    logging_dir='./logs',  
-    logging_first_step=True,
-    run_name='run_name',  
+    report_to="wandb"
 )
 
 # Set up Seq2SeqTrainer
