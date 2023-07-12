@@ -65,7 +65,7 @@ def analyze_split(train_data):
 
     # Print the results
     print("Distribution of Number of Questions per Article:")
-    for count, freq in question_counts.items():
+    for count, freq in sorted(question_counts.items(), key=lambda x: x[0]):
         print(f"{count} questions: {freq} articles")
 
     print("Average Number of Answers per Question:", avg_answers_per_question)
@@ -80,7 +80,9 @@ def analyze_split(train_data):
     print("Mean length:", sum(abstract_lengths) / len(abstract_lengths))
 
 # EDA for train and test splits
+print("\nTrain Split:")
 analyze_split(dataset['train'])
+print("\nTest Split:")
 analyze_split(dataset['test'])
 
 # Flattening the hierarchical structure
