@@ -136,7 +136,6 @@ tokenizer = T5Tokenizer.from_pretrained('t5-base')
 
 def preprocess(data):
     input_text = ['question: ' + question + ' context: ' + abstract for (question, abstract) in zip(data["question"], data['abstract'])]
-    print(input_text)
     target_text = data['answer']
     tokenized_inputs = tokenizer(input_text, truncation=True, max_length=128, padding='max_length')
     tokenized_targets = tokenizer(target_text, truncation=True, max_length=32, padding='max_length')
