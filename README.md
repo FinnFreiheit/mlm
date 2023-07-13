@@ -19,7 +19,7 @@
 Run Python Script with the selected parameters
 `!python /kaggle/working/mlm/mlm.py BATCH_SIZE NUMOFEPOCH WEIGHTDECAY LEARNINGRATE`
 
-For example
+Our final parameters are:
 `!python /kaggle/working/mlm/mlm.py 32 3 0.01 2e-5`
 
 ## Exercise 2: Q&A Task
