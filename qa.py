@@ -44,6 +44,8 @@ def analyze_split(train_data):
     num_extractive_answers = 0
     num_unanswerable_questions = 0
     abstract_lengths = []
+    abstract_word_counts = []
+    answer_word_counts = []
 
     for instance in train_data:
         # Count number of questions per article
@@ -55,15 +57,23 @@ def analyze_split(train_data):
 
             for answer in answer_list['answer']:
                 # Check answer type
-                if 'free_form_answer' in answer:
+                # if 'free_form_answer' in answer:
+                if answer['free_form_answer'] != '':
                     num_free_form_answers += 1
-                if 'extractive_spans' in answer:
+                    answer_word_counts.append(len(answer['free_form_answer'].split(" ")))
+                if answer['extractive_spans'] != '':
                     num_extractive_answers += 1
+                    
+                    if type(answer["extractive_spans"]) == list:
+                        answer_word_counts.append(len(", ".join(answer['extractive_spans']).split(" ")))
+                    else:
+                        answer_word_counts.append(len(answer['extractive_spans'].split(" ")))
                 if answer['unanswerable']:
                     num_unanswerable_questions += 1
 
         # Compute abstract length
         abstract_lengths.append(len(instance['abstract']))
+        abstract_word_counts.append(len(instance['abstract'].split(" ")))
 
     # Distribution of number of questions per article
     question_counts = {}
@@ -88,6 +98,14 @@ def analyze_split(train_data):
     print("Minimum length:", min(abstract_lengths))
     print("Maximum length:", max(abstract_lengths))
     print("Mean length:", sum(abstract_lengths) / len(abstract_lengths))
+    print("Distribution of Abstract Word Counts:")
+    print("Minimum word counts:", min(abstract_word_counts))
+    print("Maximum word counts:", max(abstract_word_counts))
+    print("Mean word counts:", sum(abstract_word_counts) / len(abstract_word_counts))
+    print("Distribution of Answer Word Counts:")
+    print("Minimum word counts:", min(answer_word_counts))
+    print("Maximum word counts:", max(answer_word_counts))
+    print("Mean word counts:", sum(answer_word_counts) / len(answer_word_counts))
 
 # EDA for train and test splits
 print("\nTrain Split:")
