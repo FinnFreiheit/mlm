@@ -86,7 +86,7 @@ if __name__ == '__main__':
     config = AutoConfig.from_pretrained("distilroberta-base")
     if DEBUG: print(ps, "config", config)
 
-    model = AutoModelForMaskedLM.from_config(config)
+    model = AutoModelForMaskedLM.from_pretrained("distilroberta-base")
     if DEBUG: print(ps, "Model:", model)
 
     for layer in model.roberta.encoder.layer:
@@ -136,7 +136,7 @@ if __name__ == '__main__':
     model.to("cpu")
 
     mask_filler = pipeline("fill-mask", model=model, tokenizer=tokenizer)
-    for i in mask_filler(text, top_k=3):
+    for i in mask_filler(text, top_k=5):
         print(i, "\n")
 
     wandb.finish()
