@@ -28,6 +28,6 @@ Run Python Script with the selected parameters
 `!python /kaggle/working/mlm/qa.py BATCH_SIZE NUMOFEPOCH WEIGHTDECAY LEARNINGRATE`
 
 For example
-`!python /kaggle/working/mlm/qa.py 32 8 0.01 1e-3`
+`!python /kaggle/working/mlm/qa.py 32 10 0.005 1e-4`
 
 Note: This script should be run on a GPU P100 with access > 15GB of memory.
