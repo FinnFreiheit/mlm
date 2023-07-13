@@ -29,3 +29,5 @@ Run Python Script with the selected parameters
 
 For example
 `!python /kaggle/working/mlm/qa.py 32 8 0.01 1e-3`
+
+Note: This script should be run on a GPU P100 with access > 15GB of memory.

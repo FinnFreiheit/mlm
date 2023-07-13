@@ -10,7 +10,7 @@ import sys
 dataset = load_dataset("allenai/qasper")
 
 # Print the first sample from the train split
-# print(dataset['train'][0])
+print(dataset['train'][0])
 
 BATCH_SIZE = int(sys.argv[1])
 NUMOFEPOCH = int(sys.argv[2])
@@ -161,8 +161,8 @@ tokenizer = T5Tokenizer.from_pretrained('t5-small')
 def preprocess(data):
     input_text = ['question: ' + question + ' context: ' + abstract for (question, abstract) in zip(data["question"], data['abstract'])]
     target_text = data['answer']
-    tokenized_inputs = tokenizer(input_text, truncation=True, max_length=128, padding='max_length')
-    tokenized_targets = tokenizer(target_text, truncation=True, max_length=32, padding='max_length')
+    tokenized_inputs = tokenizer(input_text, truncation=True, max_length=256, padding='max_length')
+    tokenized_targets = tokenizer(target_text, truncation=True, max_length=256, padding='max_length')
     return {
         'input_ids': tokenized_inputs['input_ids'],
         'attention_mask': tokenized_inputs['attention_mask'],
@@ -183,7 +183,6 @@ valid_dataset = validation_dataset.map(
 )
 
 # Load the model
-# model = T5ForConditionalGeneration.from_pretrained('google/t5-efficient-tiny') 
 model = T5ForConditionalGeneration.from_pretrained('t5-small')
 
 # Set up Seq2SeqTrainingArguments
@@ -196,7 +195,7 @@ training_args = Seq2SeqTrainingArguments(
     learning_rate=LEARNINGRATE,
     weight_decay=WEIGHTDECAY,
     load_best_model_at_end=True,
-    num_train_epochs=NUMOFEPOCH,  # adjust number of epochs as per requirement
+    num_train_epochs=NUMOFEPOCH, 
     report_to="wandb"
 )
 
@@ -208,34 +207,25 @@ trainer = Seq2SeqTrainer(
     eval_dataset=valid_dataset,
 )
 
-# Training
 trainer.train()
 
 wandb.finish()
 
 # Predict new sample from test set
-from transformers import T5Tokenizer
-
-# Load the T5 tokenizer
 tokenizer = T5Tokenizer.from_pretrained('t5-small')
 
-model.to("cpu")
+device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
-# Function to generate an answer to a question given the context
+model.to(device)
+
 def answer_question(question, context):
-    # Encode the question and context with the T5 tokenizer
-    # T5 expects a specific format of text, which is "question: some question context: some context"
     encoded_input = tokenizer.encode("question: " + question + " context: " + context, return_tensors='pt')
+    encoded_input = encoded_input.to(device)
 
-    # Generate the answer with the model
     output = model.generate(encoded_input, max_length=512, num_beams=4, early_stopping=True)
 
-    # Decode the output tensor to a string
     answer = tokenizer.decode(output[0])
     return answer
 
-id = 893
-print("Question:", test_dataset[id]["question"])
-print("Predicted Answer: ", answer_question(test_dataset[id]["question"], test_dataset[id]["abstract"]))
-print("Context:", test_dataset[id]["abstract"])
-print("Answer:", test_dataset[id]["answer"])
+id = 583
+print(f"{id} Predicted Answer: {answer_question(test_dataset[id]['question'], test_dataset[id]['abstract'])}\nAnswer: {test_dataset[id]['answer']}")
