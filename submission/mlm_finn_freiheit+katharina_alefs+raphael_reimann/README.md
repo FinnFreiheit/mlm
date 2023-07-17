@@ -12,6 +12,6 @@
 `python mlm.py BATCH_SIZE NUMOFEPOCH WEIGHTDECAY LEARNINGRATE`
 
 The training command used to obtain the best model is:
-`python mlm.py 32 10 0.005 1e-4`
+`python mlm.py 32 3 0.01 2e-5`
 
 Note: This script should be run on a GPU P100 with access > 15GB of memory.
